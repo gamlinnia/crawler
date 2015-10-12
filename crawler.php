@@ -9,9 +9,18 @@ $content = file_get_contents($url);
 
 $doc = phpQuery::newDocumentHTML($content);
 
-$alsoBoughtAjaxObject = pq('div.data-a-carousel-options', $doc)->html();
+$alsoBoughtAjaxObject = pq('#purchase-sims-feature', $doc)->find('div')->filter(':first')->attr('data-a-carousel-options');
+$alsoBoughtAjaxArray = json_decode($alsoBoughtAjaxObject, true);
+
+var_dump($alsoBoughtAjaxArray);
+
+$amazonAjaxBaseUrl = 'http://www.amazon.com/gp/p13n-shared/faceout-partial';
+
+parseUrl($amazonAjaxBaseUrl, $alsoBoughtAjaxArray, 'amazon');
 
 
+// var_dump($alsoBoughtAjaxObject->html());
 
+function parseUrl ($baseUrl, $paramArray, $web) {
 
-var_dump($alsoBoughtAjaxObject);
+}
