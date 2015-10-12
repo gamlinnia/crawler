@@ -12,4 +12,6 @@ $doc = phpQuery::newDocumentHTML($content);
 $alsoBoughtAjaxObject = pq('div.data-a-carousel-options', $doc)->html();
 
 
+
+
 var_dump($alsoBoughtAjaxObject);
