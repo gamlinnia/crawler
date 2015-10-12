@@ -14,13 +14,49 @@ $alsoBoughtAjaxArray = json_decode($alsoBoughtAjaxObject, true);
 
 var_dump($alsoBoughtAjaxArray);
 
-$amazonAjaxBaseUrl = 'http://www.amazon.com/gp/p13n-shared/faceout-partial';
+$amazonAjaxBaseUrl = 'http://www.amazon.com';
 
-parseUrl($amazonAjaxBaseUrl, $alsoBoughtAjaxArray, 'amazon');
+$parsedUrl = parseUrl($amazonAjaxBaseUrl, $alsoBoughtAjaxArray['ajax'], 'amazon');
+$parsedUrl = addAsinsParam($parsedUrl, $alsoBoughtAjaxArray['ajax']['id_list'], 5, 1);
+echo $parsedUrl;
 
+function parseUrl ($baseUrl, $paramArray, $webSite) {
+    $response = $baseUrl;
+    switch ($webSite) {
+        case 'amazon' :
+            $response = $response . $paramArray['url'];
+            $neededAttr = array('featureId', 'reftagPrefix', 'widgetTemplateClass', 'imageHeight', 'faceoutTemplateClass', 'auiDeviceType', 'imageWidth', 'productDetailsTemplateClass', 'relatedRequestID');
+            $count = 0;
+            foreach ($paramArray['params'] as $attr => $attrValue) {
+                if (in_array($attr, $neededAttr)) {
+                    if ($count < 1) {
+                        $response = $response . '?' . $attr . '=' . $attrValue;
+                    } else {
+                        $response = $response . '&' . $attr . '=' . $attrValue;
+                    }
+                    $count++;
+                }
+            }
+            break;
+        case 'newegg' :
+            $neededAttr = array();
+            break;
+        default :
+            $neededAttr = array();
+    }
 
-// var_dump($alsoBoughtAjaxObject->html());
+    return $response;
+}
 
-function parseUrl ($baseUrl, $paramArray, $web) {
+function addAsinsParam ($parsedUrl, $id_list, $count, $offset) {
+    $parsedUrl .= '&count=' . $count . '&offset=' . $offset;
+    $asins = '&asins=';
+    for ($i = $count*($offset-1); $i < $count*$offset; $i++) {
+        $asins .= $id_list[$i];
+        if ($i < ($count*$offset) -1) {
+            $asins .= ',';
+        }
+    }
 
+    return $parsedUrl . $asins;
 }
