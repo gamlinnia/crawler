@@ -1,6 +1,7 @@
 #!/usr/bin/php -q
 <?php
 
+date_default_timezone_set('Asia/Taipei');
 require_once 'phpQuery/phpQuery/phpQuery.php';
 require_once 'PHPExcel/Classes/PHPExcel.php';
 require_once 'functions.php';
@@ -12,19 +13,21 @@ foreach ($excelArray as $row) {
     $url = $row['Primary SKU URL'];
     $content = file_get_contents($url);
     $doc = phpQuery::newDocumentHTML($content);
-    $rowResponse = array('Primary SKU #' => $row['Primary SKU #']);
+    $rowResponse = array(
+        'Primary SKU #' => $row['Primary SKU #'],
+        'Missing Items' => ''
+    );
 
     switch ($row['Website']) {
         case 'amazon' :
             $alsoBoughtAjaxObject = pq('#purchase-sims-feature', $doc)->find('div')->filter(':first')->attr('data-a-carousel-options');
             $alsoBoughtAjaxArray = json_decode($alsoBoughtAjaxObject, true);
-            var_dump($alsoBoughtAjaxArray);
             $amazonAjaxBaseUrl = 'http://www.amazon.com';
 
             foreach ($row as $title => $column) {
                 if (preg_match('/^secondary.*SKU #$/i', $title, $match)) {
                     if ($column && !in_array($column, $alsoBoughtAjaxArray['ajax']['id_list'])) {
-                        isset($rowResponse['Missing Items']) ? $rowResponse['Missing Items'] .= ',' . $column : $rowResponse['Missing Items'] = $column;
+                        (count($rowResponse['Missing Items']) > 0) ? $rowResponse['Missing Items'] .= ',' . $column : $rowResponse['Missing Items'] = $column;
                         echo $column . ' in the list' . PHP_EOL;
                     }
                 }
@@ -35,15 +38,17 @@ foreach ($excelArray as $row) {
 
             break;
     }
-    if (!isset($rowResponse['Missing Items'])) {
+    if (count($rowResponse['Missing Items']) < 1) {
         $rowResponse['Missing Items'] = 'No Missing Item';
     }
     $arrayToExcel[] = $rowResponse;
 }
 
+$fileName = date("Ymd_Hi") . '.xls';
+
 exportArrayToXlsx($arrayToExcel, array(
-    "filename"=>"test.xls",
-    "title"=>"Product List"
+    "filename" => $fileName,
+    "title" => "Missing List"
 ));
 
 function parseUrl ($baseUrl, $paramArray, $webSite) {
