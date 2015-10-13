@@ -35,6 +35,8 @@ foreach ($excelArray as $row) {
 //            $parsedUrl = parseUrl($amazonAjaxBaseUrl, $alsoBoughtAjaxArray['ajax'], 'amazon');
 //            $parsedUrl = addAsinsParam($parsedUrl, $alsoBoughtAjaxArray['ajax']['id_list'], 5, 1);
 //            echo $parsedUrl;
+            break;
+        case 'newegg' :
 
             break;
     }
@@ -46,8 +48,12 @@ foreach ($excelArray as $row) {
 
 $fileName = date("Ymd_Hi") . '.xls';
 
+$fileDir = 'report';
+if (file_exists($fileDir)) {
+    mkdir($fileDir);
+}
 exportArrayToXlsx($arrayToExcel, array(
-    "filename" => $fileName,
+    "filename" => $fileDir . DS . $fileName,
     "title" => "Missing List"
 ));
 
