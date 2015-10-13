@@ -16,14 +16,13 @@ foreach ($excelArray as $row) {
         case 'amazon' :
             $alsoBoughtAjaxObject = pq('#purchase-sims-feature', $doc)->find('div')->filter(':first')->attr('data-a-carousel-options');
             $alsoBoughtAjaxArray = json_decode($alsoBoughtAjaxObject, true);
-            $id_list = array();
             var_dump($alsoBoughtAjaxArray);
             $amazonAjaxBaseUrl = 'http://www.amazon.com';
 
             foreach ($row as $title => $column) {
                 if (preg_match('/^secondary.*SKU #$/i', $title, $match)) {
                     if (in_array($column, $alsoBoughtAjaxArray['ajax']['id_list'])) {
-                        echo $column . ' in the list';
+                        echo $column . ' in the list' . PHP_EOL;
                     }
                 }
             }
@@ -35,7 +34,12 @@ foreach ($excelArray as $row) {
     }
 }
 
+$arrayToExcel = array('abc' => 'response for abc', 'cde' => 'respnonse for cde');
 
+exportArrayToXlsx($arrayToExcel, array(
+    "filename"=>"../public_html/media/download/excel/rwProductList.xls",
+    "title"=>"Product List"
+));
 
 function parseUrl ($baseUrl, $paramArray, $webSite) {
     $response = $baseUrl;
