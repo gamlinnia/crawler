@@ -7,10 +7,12 @@ require_once 'functions.php';
 
 $excelArray = parseXlsxIntoArray('Crawler_Format.xlsx');
 
+$arrayToExcel = array();
 foreach ($excelArray as $row) {
     $url = $row['Primary SKU URL'];
     $content = file_get_contents($url);
     $doc = phpQuery::newDocumentHTML($content);
+    $rowResponse = array('Primary SKU #' => $row['Primary SKU #']);
 
     switch ($row['Website']) {
         case 'amazon' :
@@ -21,7 +23,8 @@ foreach ($excelArray as $row) {
 
             foreach ($row as $title => $column) {
                 if (preg_match('/^secondary.*SKU #$/i', $title, $match)) {
-                    if (in_array($column, $alsoBoughtAjaxArray['ajax']['id_list'])) {
+                    if ($column && !in_array($column, $alsoBoughtAjaxArray['ajax']['id_list'])) {
+                        isset($rowResponse['Missing Items']) ? $rowResponse['Missing Items'] .= ',' . $column : $rowResponse['Missing Items'] = $column;
                         echo $column . ' in the list' . PHP_EOL;
                     }
                 }
@@ -32,9 +35,8 @@ foreach ($excelArray as $row) {
 
             break;
     }
+    $arrayToExcel[] = $rowResponse;
 }
-
-$arrayToExcel = array(array('abc' => 'response for abc', 'cde' => 'respnonse for cde'));
 
 exportArrayToXlsx($arrayToExcel, array(
     "filename"=>"test.xls",
