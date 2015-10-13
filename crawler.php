@@ -35,6 +35,9 @@ foreach ($excelArray as $row) {
 
             break;
     }
+    if (!isset($rowResponse['Missing Items'])) {
+        $rowResponse['Missing Items'] = 'No Missing Item';
+    }
     $arrayToExcel[] = $rowResponse;
 }
 
