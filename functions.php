@@ -340,3 +340,33 @@ function excel_col_to_num($str){
     }
     return $result;
 }
+
+//英文轉數字對照
+function az_num($str) {
+    if(strtoupper($str)=="A"){return 1;}
+    if(strtoupper($str)=="B"){return 2;}
+    if(strtoupper($str)=="C"){return 3;}
+    if(strtoupper($str)=="D"){return 4;}
+    if(strtoupper($str)=="E"){return 5;}
+    if(strtoupper($str)=="F"){return 6;}
+    if(strtoupper($str)=="G"){return 7;}
+    if(strtoupper($str)=="H"){return 8;}
+    if(strtoupper($str)=="I"){return 9;}
+    if(strtoupper($str)=="J"){return 10;}
+    if(strtoupper($str)=="K"){return 11;}
+    if(strtoupper($str)=="L"){return 12;}
+    if(strtoupper($str)=="M"){return 13;}
+    if(strtoupper($str)=="N"){return 14;}
+    if(strtoupper($str)=="O"){return 15;}
+    if(strtoupper($str)=="P"){return 16;}
+    if(strtoupper($str)=="Q"){return 17;}
+    if(strtoupper($str)=="R"){return 18;}
+    if(strtoupper($str)=="S"){return 19;}
+    if(strtoupper($str)=="T"){return 20;}
+    if(strtoupper($str)=="U"){return 21;}
+    if(strtoupper($str)=="V"){return 22;}
+    if(strtoupper($str)=="W"){return 23;}
+    if(strtoupper($str)=="X"){return 24;}
+    if(strtoupper($str)=="Y"){return 25;}
+    if(strtoupper($str)=="Z"){return 26;}
+}
