@@ -48,12 +48,12 @@ foreach ($excelArray as $row) {
 
 $fileName = date("Ymd_Hi") . '.xls';
 
-$fileDir = 'report';
+$fileDir = 'report/';
 if (file_exists($fileDir)) {
     mkdir($fileDir);
 }
 exportArrayToXlsx($arrayToExcel, array(
-    "filename" => $fileDir . DS . $fileName,
+    "filename" => $fileDir . $fileName,
     "title" => "Missing List"
 ));
 
