@@ -34,10 +34,10 @@ foreach ($excelArray as $row) {
     }
 }
 
-$arrayToExcel = array('abc' => 'response for abc', 'cde' => 'respnonse for cde');
+$arrayToExcel = array(array('abc' => 'response for abc', 'cde' => 'respnonse for cde'));
 
 exportArrayToXlsx($arrayToExcel, array(
-    "filename"=>"../public_html/media/download/excel/rwProductList.xls",
+    "filename"=>"test.xls",
     "title"=>"Product List"
 ));
 
