@@ -38,13 +38,7 @@ function parseUrl ($baseUrl, $paramArray, $webSite) {
                 }
             }
             break;
-        case 'newegg' :
-            $neededAttr = array();
-            break;
-        default :
-            $neededAttr = array();
     }
-
     return $response;
 }
 
@@ -57,6 +51,5 @@ function addAsinsParam ($parsedUrl, $id_list, $count, $offset) {
             $asins .= ',';
         }
     }
-
     return $parsedUrl . $asins;
 }
