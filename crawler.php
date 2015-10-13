@@ -16,13 +16,20 @@ foreach ($excelArray as $row) {
         case 'amazon' :
             $alsoBoughtAjaxObject = pq('#purchase-sims-feature', $doc)->find('div')->filter(':first')->attr('data-a-carousel-options');
             $alsoBoughtAjaxArray = json_decode($alsoBoughtAjaxObject, true);
-
+            $id_list = array();
             var_dump($alsoBoughtAjaxArray);
             $amazonAjaxBaseUrl = 'http://www.amazon.com';
 
-            $parsedUrl = parseUrl($amazonAjaxBaseUrl, $alsoBoughtAjaxArray['ajax'], 'amazon');
-            $parsedUrl = addAsinsParam($parsedUrl, $alsoBoughtAjaxArray['ajax']['id_list'], 5, 1);
-            echo $parsedUrl;
+            foreach ($row as $title => $column) {
+                if (preg_match('/^secondary.*SKU #$/i', $title, $match)) {
+                    if (in_array($column, $id_list)) {
+                        echo $column . ' in the list';
+                    }
+                }
+            }
+//            $parsedUrl = parseUrl($amazonAjaxBaseUrl, $alsoBoughtAjaxArray['ajax'], 'amazon');
+//            $parsedUrl = addAsinsParam($parsedUrl, $alsoBoughtAjaxArray['ajax']['id_list'], 5, 1);
+//            echo $parsedUrl;
 
             break;
     }
