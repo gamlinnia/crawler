@@ -3,23 +3,32 @@
 
 require_once 'phpQuery/phpQuery/phpQuery.php';
 require_once 'PHPExcel/Classes/PHPExcel.php';
+require_once 'functions.php';
 
-$url = 'http://www.amazon.com/EVGA-Continuous-Warranty-Supply-100-W1-0500-KR/dp/B00H33SFJU/ref=pd_sim_147_7?ie=UTF8&refRID=0JJ2BPZ1FC6W65FS8Q37';
+$excelArray = parseXlsxIntoArray('Crawler_Format.xlsx');
 
-$content = file_get_contents($url);
+foreach ($excelArray as $row) {
+    $url = $row['Primary SKU URL'];
+    $content = file_get_contents($url);
+    $doc = phpQuery::newDocumentHTML($content);
 
-$doc = phpQuery::newDocumentHTML($content);
+    switch ($row['Website']) {
+        case 'amazon' :
+            $alsoBoughtAjaxObject = pq('#purchase-sims-feature', $doc)->find('div')->filter(':first')->attr('data-a-carousel-options');
+            $alsoBoughtAjaxArray = json_decode($alsoBoughtAjaxObject, true);
 
-$alsoBoughtAjaxObject = pq('#purchase-sims-feature', $doc)->find('div')->filter(':first')->attr('data-a-carousel-options');
-$alsoBoughtAjaxArray = json_decode($alsoBoughtAjaxObject, true);
+            var_dump($alsoBoughtAjaxArray);
+            $amazonAjaxBaseUrl = 'http://www.amazon.com';
 
-var_dump($alsoBoughtAjaxArray);
+            $parsedUrl = parseUrl($amazonAjaxBaseUrl, $alsoBoughtAjaxArray['ajax'], 'amazon');
+            $parsedUrl = addAsinsParam($parsedUrl, $alsoBoughtAjaxArray['ajax']['id_list'], 5, 1);
+            echo $parsedUrl;
 
-$amazonAjaxBaseUrl = 'http://www.amazon.com';
+            break;
+    }
+}
 
-$parsedUrl = parseUrl($amazonAjaxBaseUrl, $alsoBoughtAjaxArray['ajax'], 'amazon');
-$parsedUrl = addAsinsParam($parsedUrl, $alsoBoughtAjaxArray['ajax']['id_list'], 5, 1);
-echo $parsedUrl;
+
 
 function parseUrl ($baseUrl, $paramArray, $webSite) {
     $response = $baseUrl;
