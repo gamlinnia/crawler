@@ -1,0 +1,332 @@
+<?php
+
+function attributeSetNameAndId ($nameOrId, $value) {
+    /*$nameOrId = 'attributeSetName' or 'attributeSetId'*/
+    $attributeSetCollection = Mage::getResourceModel('eav/entity_attribute_set_collection') ->load();
+    foreach ($attributeSetCollection as $id => $attributeSet) {
+        $entityTypeId = $attributeSet->getEntityTypeId();
+        $name = $attributeSet->getAttributeSetName();
+        switch ($nameOrId) {
+            case 'attributeSetName' :
+                if ($name == $value) {
+                    return array(
+                        'name' => $name,
+                        'id' => $id,
+                        'entityTypeId' => $entityTypeId
+                    );
+                }
+                break;
+            case 'attributeSetId' :
+                if ((int)$id == (int)$value) {
+                    return array(
+                        'name' => $name,
+                        'id' => $id,
+                        'entityTypeId' => $entityTypeId
+                    );
+                }
+                break;
+        }
+    }
+    return null;
+}
+
+function getCountNumberOfProducts () {
+    $productCollection = Mage::getModel('catalog/product')->getCollection();
+    return count($productCollection);
+}
+
+function getProductInfoFromMagentoForExport ($pageSize, $pageNumber = 1, $noOutputAttr) {
+    $productCollection = Mage::getModel('catalog/product')->getCollection()->addAttributeToSelect('*')
+        ->setOrder('entity_id', 'ASC')->setPageSize($pageSize)->setCurPage($pageNumber);
+
+    $response = array();
+    foreach ($productCollection as $product) {
+        $tempArray = array();
+        foreach ($product->debug() as $attr => $attrValue) {
+            if (!in_array($attr, $noOutputAttr)) {
+                $tempArray[$attr] = $attrValue;
+            }
+        }
+
+        $withDownloadableFile = false;
+        $user_manuals=Mage::getModel('usermanuals/usermanuals')->getCollection()->addFieldToFilter('product_id',$product['entity_id']);
+        if ( count($user_manuals) > 0 ) {
+            $withDownloadableFile = true;
+        }
+        $drivers=Mage::getModel('drivers/drivers')->getCollection()->addFieldToFilter('product_id',$product['entity_id']);
+        if ( count($drivers) > 0 ) {
+            $withDownloadableFile = true;
+        }
+        $firmwares=Mage::getModel('firmware/firmware')->getCollection()->addFieldToFilter('product_id',$product['entity_id']);
+        if ( count($drivers) > 0 ) {
+            $withDownloadableFile = true;
+        }
+        if ($withDownloadableFile) {
+            $tempArray['attachment'] = 'yes';
+        }
+
+        $response[] = $tempArray;
+    }
+    return $response;
+}
+
+// - The $exportArray is a 2-dimension array. (row & column)
+// - Each row is a php Associative Array :  array("key"=>"value")
+// - The first row is used to generate column names in excel, so it must has all possible keys.
+//   (You may insert a dummy first row with all possible keys.)
+// - Check function test_getDataFromDB() above for how to generate $exportArray.
+function exportArrayToXlsx ($exportArray, $exportParam) {
+
+    PHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );
+
+    $objPHPExcel = new PHPExcel();
+
+    // Set properties
+    $objPHPExcel->getProperties()->setCreator($exportParam['title'])
+        ->setLastModifiedBy($exportParam['title'])
+        ->setTitle($exportParam['title'])
+        ->setSubject($exportParam['title'])
+        ->setDescription($exportParam['title'])
+        ->setKeywords($exportParam['title'])
+        ->setCategory($exportParam['title']);
+
+    // Set active sheet
+    $objPHPExcel->setActiveSheetIndex(0);
+    $objPHPExcel->getActiveSheet()->setTitle($exportParam['title']);
+
+    // Set cell value
+    //rows are 1-based whereas columns are 0-based, so “A1″ becomes (0,1).
+    //$objPHPExcel->setCellValueByColumnAndRow($column, $row, $value);
+    //$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, "This is A1");
+    for($row = 0; $row < count($exportArray); $row++){
+        ksort($exportArray[$row]);  // sort by key
+        foreach ($exportArray[$row] AS $key => $value){
+            // Find key index from first row
+            $key_index = -1;
+            if (array_key_exists($key, $exportArray[0])){
+                $key_index = array_search($key, array_keys($exportArray[0]));
+            }
+
+            // Set key(column name)
+            if($row==0){
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($key_index, 1, $key);
+            }
+
+            //   var_dump($key);
+
+            if($key_index != -1){
+
+                switch ($key) {
+
+                    case 'createDate' :
+                    case 'mtime' :
+                        if($value!=null && $value> 25569){
+                            $value=(($value/86400)+25569); //  change  database  timestamp to date for excel .
+                        }
+
+                        $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($key_index, $row+2, $value);
+                        $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($key_index, $row+2)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD);
+                        //  var_dump($key.$value);
+                        break;
+
+                    default:
+                        $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($key_index, $row+2, $value);
+                    //    var_dump($key.$value);
+
+                }
+                // Set Value (each row)
+
+
+            }else{
+                // Can not find $key in $row
+            }
+
+        }
+    }
+
+    // Browser download
+    if (strcmp("php://output", $exportParam['filename'])==0){
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="FixedAssets.xls"');
+        header('Cache-Control: max-age=0');
+    }
+
+    // Write to file
+    // If you want to output e.g. a PDF file, simply do:
+    //$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'PDF');
+    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+    $objWriter->save($exportParam['filename']); // Excel2007 : '.xlsx'   Excel5 : '.xls'
+
+    echo json_encode(array('message' => 'success'));
+}
+
+function parseProductAttributesForExport ($magentoProductInfo) {
+    $response = array();
+    foreach ($magentoProductInfo as $attrKey => $attrValue) {
+        switch ($attrKey) {
+            case 'attribute_set_id' :
+                $attrIdName = attributeSetNameAndId('attributeSetId', $attrValue);
+                $response[$attrKey] = $attrIdName['name'];
+                break;
+            default :
+                $response[$attrKey] = getAttributeValueFromOptionsForExport('attributeName', $attrKey, $attrValue);;
+        }
+    }
+    return $response;
+}
+
+function getAttributeOptions ($nameOrId, $value) {
+    /*$nameOrId = 'attributeName' or 'attributeId'*/
+    switch ($nameOrId) {
+        case 'attributeName' :
+            $attributeCode = $value;
+            $attributeId = Mage::getResourceModel('eav/entity_attribute')->getIdByCode('catalog_product', $value);
+            break;
+        case 'attributeId' :
+            $attributeCode = Mage::getModel('eav/entity_attribute')->load($value)->getAttributeCode();
+            $attributeId = $value;
+            break;
+    }
+
+    if (isset($attributeCode)) {
+        $attribute = Mage::getSingleton('eav/config')->getAttribute('catalog_product', $attributeCode);
+        $attributeData = $attribute->getData();
+        $rs = array(
+            'attributeCode' => $attributeCode,
+            'attributeId' => $attributeId,
+            'frontend_input' => $attributeData['frontend_input'],
+            'backend_type' => $attributeData['backend_type']
+        );
+        if ($attribute->usesSource()) {
+            $options = $attribute->getSource()->getAllOptions(false);
+            $rs['options'] = $options;
+        }
+        return $rs;
+    }
+
+    return null;
+}
+
+function getAttributeValueFromOptionsForExport ($nameOrId, $attrCodeOrId, $valueToBeMapped) {
+    /*$nameOrId = 'attributeName' or 'attributeId'*/
+    file_put_contents('log.txt', $attrCodeOrId . ': ' . $valueToBeMapped . PHP_EOL, FILE_APPEND);
+    $optionsArray = getAttributeOptions($nameOrId, $attrCodeOrId);
+    if ($optionsArray && isset($optionsArray['frontend_input']) ) {
+        switch ($optionsArray['frontend_input']) {
+            case 'select' :
+            case 'boolean' :
+                foreach ($optionsArray['options'] as $optionObject) {
+                    if ((int)$optionObject['value'] == (int)$valueToBeMapped) {
+                        return $optionObject['label'];
+                    }
+                }
+                break;
+            case 'multiselect' :
+                /*multiselect : a02030_headsets_connector,
+                "a02030_headsets_connector": "147,148,149,150"*/
+                file_put_contents('log.txt', $attrCodeOrId . ': ' . $valueToBeMapped . PHP_EOL, FILE_APPEND);
+                $valueToBeMappedArray = explode(',', $valueToBeMapped);
+                file_put_contents('log.txt', 'count($valueToBeMappedArray)' . ': ' . count($valueToBeMappedArray) . PHP_EOL, FILE_APPEND);
+                if (count($valueToBeMappedArray) < 2) {
+                    foreach ($optionsArray['options'] as $optionObject) {
+                        if ((int)$optionObject['value'] == (int)$valueToBeMapped) {
+                            return $optionObject['label'];
+                        }
+                    }
+                } else {
+                    $mappedArray = array();
+                    foreach ($optionsArray['options'] as $optionObject) {
+                        if (in_array((int)$optionObject['value'], $valueToBeMappedArray)) {
+                            file_put_contents('log.txt', 'mapped value' . ': ' . $optionObject['label'] . PHP_EOL, FILE_APPEND);
+                            $mappedArray[] = $optionObject['label'];
+                        }
+                    }
+                    return join(',', $mappedArray);
+                }
+                break;
+            case 'text' :
+            case 'textarea' :
+            case 'price' :
+            case 'date' :
+            case 'weight' :
+            case 'media_image' :
+                return $valueToBeMapped;
+                break;
+            default :
+                return "******** " . $optionsArray['frontend_input'] . " ********";
+        }
+    }
+    return $valueToBeMapped;
+}
+
+function parseXlsxIntoArray ($inputFileName) {
+    date_default_timezone_set('Asia/Taipei');
+    try {
+        $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
+        $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+        $objPHPExcel = $objReader->load($inputFileName);
+    } catch(Exception $e) {
+        die('Error loading file "'.pathinfo($inputFileName,PATHINFO_BASENAME).'": '.$e->getMessage());
+    }
+
+//  Get worksheet dimensions
+    $sheetCount = $objPHPExcel->getSheetCount();
+    $sheet = $objPHPExcel->getSheet(0);
+    $highestRow = $sheet->getHighestRow();
+    $highestColumn = $sheet->getHighestColumn();
+    $highestColumnNumber = excel_col_to_num($highestColumn);
+
+//  Loop through each row of the worksheet in turn
+    $dataArray = array();
+    $rowTitle = array();
+    for ($row = 1; $row <= $highestRow; $row++){
+        if ($row == 1) {
+            //  Read a row of data into an array
+            $rowTitle = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row,
+                NULL,
+                TRUE,
+                FALSE);
+        } else {
+            //  Read a row of data into an array
+            $rowRawData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row,
+                NULL,
+                TRUE,
+                FALSE);
+            //  Insert row data array into your database of choice here
+            $rowData = array();
+
+            for ($i = 0; $i < $highestColumnNumber; $i++) {
+                switch ($rowTitle[0][$i]) {
+                    case '入庫日期' :
+                    case '保固到期日' :
+                    case 'modifiedDate' :
+                    case 'createDate' :
+                    case 'purchaseDate' :
+                    case 'deployDate' :
+
+
+                        if ($rowRawData[0][$i] != null) {
+                            if(is_nan($rowRawData[0][$i])){
+                                $rowRawData[0][$i] =strtotime($rowRawData[0][$i]);
+                                //   var_dump(strtotime($rowRawData[0][$i]));
+                            }else{
+                                // if ($rowRawData[0][$i] > 25569 && $rowRawData[0][$i] != null) {
+                                $rowRawData[0][$i] = ((int)$rowRawData[0][$i] - 25569) * 86400;     //  change excel date number to timestamp.
+
+                            }
+                        } else {
+                            $rowRawData[0][$i] = 0;
+                        }
+                        break;
+
+                }
+                if ($rowRawData[0][$i] != null) {
+                    $rowData[$rowTitle[0][$i]] = $rowRawData[0][$i];
+                }
+            }
+
+            array_push($dataArray, $rowData);
+        }
+    }
+    return $dataArray;
+}

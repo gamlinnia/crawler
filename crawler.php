@@ -2,6 +2,7 @@
 <?php
 
 require_once 'phpQuery/phpQuery/phpQuery.php';
+require_once 'PHPExcel/Classes/PHPExcel.php';
 
 $url = 'http://www.amazon.com/EVGA-Continuous-Warranty-Supply-100-W1-0500-KR/dp/B00H33SFJU/ref=pd_sim_147_7?ie=UTF8&refRID=0JJ2BPZ1FC6W65FS8Q37';
 
