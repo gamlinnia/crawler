@@ -27,7 +27,7 @@ foreach ($excelArray as $row) {
             foreach ($row as $title => $column) {
                 if (preg_match('/^secondary.*SKU #$/i', $title, $match)) {
                     if ($column && !in_array($column, $alsoBoughtAjaxArray['ajax']['id_list'])) {
-                        (count($rowResponse['Missing Items']) > 0) ? $rowResponse['Missing Items'] .= ',' . $column : $rowResponse['Missing Items'] = $column;
+                        ($rowResponse['Missing Items'] != '') ? $rowResponse['Missing Items'] .= ',' . $column : $rowResponse['Missing Items'] = $column;
                         echo $column . ' in the list' . PHP_EOL;
                     }
                 }
@@ -38,7 +38,7 @@ foreach ($excelArray as $row) {
 
             break;
     }
-    if (count($rowResponse['Missing Items']) < 1) {
+    if ($rowResponse['Missing Items'] == '') {
         $rowResponse['Missing Items'] = 'No Missing Item';
     }
     $arrayToExcel[] = $rowResponse;
