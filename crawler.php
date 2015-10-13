@@ -49,7 +49,7 @@ foreach ($excelArray as $row) {
 $fileName = date("Ymd_Hi") . '.xls';
 
 $fileDir = 'report/';
-if (file_exists($fileDir)) {
+if (!file_exists($fileDir)) {
     mkdir($fileDir);
 }
 exportArrayToXlsx($arrayToExcel, array(
