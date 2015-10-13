@@ -330,3 +330,13 @@ function parseXlsxIntoArray ($inputFileName) {
     }
     return $dataArray;
 }
+
+//英文轉數字
+function excel_col_to_num($str){
+    $result = 0;
+    $arr = array_reverse(str_split($str));
+    foreach((array)$arr as $key => $val){
+        $result += pow(26, $key)*az_num($val);
+    }
+    return $result;
+}
