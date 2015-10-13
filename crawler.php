@@ -22,7 +22,7 @@ foreach ($excelArray as $row) {
 
             foreach ($row as $title => $column) {
                 if (preg_match('/^secondary.*SKU #$/i', $title, $match)) {
-                    if (in_array($column, $id_list)) {
+                    if (in_array($column, $alsoBoughtAjaxArray['ajax']['id_list'])) {
                         echo $column . ' in the list';
                     }
                 }
