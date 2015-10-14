@@ -15,13 +15,14 @@ foreach ($excelArray as $row) {
     $content = file_get_contents($url);
     $doc = phpQuery::newDocumentHTML($content);
     $rowResponse = array(
+        'Website' => $row['Website'],
         'Primary SKU #' => $row['Primary SKU #'],
         'Missing Items' => ''
     );
 
     switch ($row['Website']) {
         case 'amazon' :
-            $alsoBoughtAjaxObject = pq('#purchase-sims-feature', $doc)->find('div')->filter(':first')->attr('data-a-carousel-options');
+/*            $alsoBoughtAjaxObject = pq('#purchase-sims-feature', $doc)->find('div')->filter(':first')->attr('data-a-carousel-options');
             $alsoBoughtAjaxArray = json_decode($alsoBoughtAjaxObject, true);
             $amazonAjaxBaseUrl = 'http://www.amazon.com';
 
@@ -31,17 +32,15 @@ foreach ($excelArray as $row) {
                         ($rowResponse['Missing Items'] != '') ? $rowResponse['Missing Items'] .= ',' . $column : $rowResponse['Missing Items'] = $column;
                     }
                 }
-            }
+            }*/
+
 //            $parsedUrl = parseUrl($amazonAjaxBaseUrl, $alsoBoughtAjaxArray['ajax'], 'amazon');
 //            $parsedUrl = addAsinsParam($parsedUrl, $alsoBoughtAjaxArray['ajax']['id_list'], 5, 1);
 //            echo $parsedUrl;
             break;
         case 'newegg' :
-            $mayWeSuggest = pq('.wrapSideSell', $doc)->find('div');
-            echo $mayWeSuggest->html() . PHP_EOL . PHP_EOL;
-            foreach ($mayWeSuggest as $suggestDiv) {
-                echo $suggestDiv->html() . PHP_EOL . PHP_EOL;
-            }
+            $mayWeSuggest = pq('.wrapSideSell', $doc);
+            echo $doc->html() . PHP_EOL . PHP_EOL;
             break;
     }
     if ($rowResponse['Missing Items'] == '') {
