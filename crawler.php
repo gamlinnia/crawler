@@ -17,8 +17,6 @@ $excelArray = parseXlsxIntoArray('Crawler_Format.xlsx');
 $arrayToExcel = array();
 foreach ($excelArray as $row) {
     $url = $row['Primary SKU URL'];
-    $content = getHtmlContent($url);
-    $doc = phpQuery::newDocumentHTML($content);
     $rowResponse = array(
         'Website' => $row['Website'],
         'Primary SKU #' => $row['Primary SKU #'],
@@ -27,6 +25,8 @@ foreach ($excelArray as $row) {
 
     switch ($row['Website']) {
         case 'amazon' :
+            $content = file_get_contents($url);
+            $doc = phpQuery::newDocumentHTML($content);
             $alsoBoughtAjaxObject = pq('#purchase-sims-feature', $doc)->find('div')->filter(':first')->attr('data-a-carousel-options');
             $alsoBoughtAjaxArray = json_decode($alsoBoughtAjaxObject, true);
             $amazonAjaxBaseUrl = 'http://www.amazon.com';
@@ -44,6 +44,8 @@ foreach ($excelArray as $row) {
 //            echo $parsedUrl;
             break;
         case 'newegg' :
+            $content = getHtmlContent($url);
+            $doc = phpQuery::newDocumentHTML($content);
             $mayWeSuggest = pq('.combineBox', $doc)->find('div')->find('.itmSideSell')->find('.wrapper_prodInfo');
             $productName = pq('.descSideSell', $mayWeSuggest);
             echo 'count' . count($productName) . PHP_EOL;
