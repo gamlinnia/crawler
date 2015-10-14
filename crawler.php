@@ -48,7 +48,9 @@ foreach ($excelArray as $row) {
             $productName = pq('.descSideSell', $mayWeSuggest);
             echo 'count' . count($productName) . PHP_EOL;
             foreach ($productName as $each) {
-                echo pq('a', $each)->attr('href') . PHP_EOL;
+                $productUrl = pq('a', $each)->attr('href');
+                preg_match('/[0-9]{8}$/i', $productUrl, $match);
+                var_dump($match);
             }
             file_put_contents('neproduct.html', $productName->html());
 //            echo $mayWeSuggest->html() . PHP_EOL . PHP_EOL;
