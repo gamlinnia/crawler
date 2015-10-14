@@ -38,10 +38,10 @@ foreach ($excelArray as $row) {
             break;
         case 'newegg' :
             $mayWeSuggest = pq('.wrapSideSell div', $doc);
+            echo $mayWeSuggest->html() . PHP_EOL . PHP_EOL;
             foreach ($mayWeSuggest as $suggestDiv) {
                 echo $suggestDiv->html() . PHP_EOL . PHP_EOL;
             }
-            die();
             break;
     }
     if ($rowResponse['Missing Items'] == '') {
