@@ -27,7 +27,7 @@ foreach ($excelArray as $row) {
 
     switch ($row['Website']) {
         case 'amazon' :
-/*            $alsoBoughtAjaxObject = pq('#purchase-sims-feature', $doc)->find('div')->filter(':first')->attr('data-a-carousel-options');
+            $alsoBoughtAjaxObject = pq('#purchase-sims-feature', $doc)->find('div')->filter(':first')->attr('data-a-carousel-options');
             $alsoBoughtAjaxArray = json_decode($alsoBoughtAjaxObject, true);
             $amazonAjaxBaseUrl = 'http://www.amazon.com';
 
@@ -37,7 +37,7 @@ foreach ($excelArray as $row) {
                         ($rowResponse['Missing Items'] != '') ? $rowResponse['Missing Items'] .= ',' . $column : $rowResponse['Missing Items'] = $column;
                     }
                 }
-            }*/
+            }
 
 //            $parsedUrl = parseUrl($amazonAjaxBaseUrl, $alsoBoughtAjaxArray['ajax'], 'amazon');
 //            $parsedUrl = addAsinsParam($parsedUrl, $alsoBoughtAjaxArray['ajax']['id_list'], 5, 1);
@@ -47,13 +47,19 @@ foreach ($excelArray as $row) {
             $mayWeSuggest = pq('.combineBox', $doc)->find('div')->find('.itmSideSell')->find('.wrapper_prodInfo');
             $productName = pq('.descSideSell', $mayWeSuggest);
             echo 'count' . count($productName) . PHP_EOL;
+            $skuArray = array();
             foreach ($productName as $each) {
                 $productUrl = pq('a', $each)->attr('href');
                 preg_match('/[0-9]{8}$/i', $productUrl, $match);
-                var_dump($match);
+                $skuArray[] = parseAllNumberToSku($match[0]);
             }
-            file_put_contents('neproduct.html', $productName->html());
-//            echo $mayWeSuggest->html() . PHP_EOL . PHP_EOL;
+            foreach ($row as $title => $column) {
+                if (preg_match('/^secondary.*SKU #$/i', $title, $match)) {
+                    if ($column && !in_array($column, $skuArray)) {
+                        ($rowResponse['Missing Items'] != '') ? $rowResponse['Missing Items'] .= ',' . $column : $rowResponse['Missing Items'] = $column;
+                    }
+                }
+            }
             break;
     }
     if ($rowResponse['Missing Items'] == '') {

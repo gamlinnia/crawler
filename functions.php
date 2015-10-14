@@ -385,3 +385,8 @@ function getHtmlContent ($url) {
     }
 
 }
+
+function parseAllNumberToSku ($number) {
+    $temp = substr_replace($number, '-', 5, 0);
+    return substr_replace($temp, '-', 2, 0);
+}
