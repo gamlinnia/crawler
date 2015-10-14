@@ -5,6 +5,11 @@ date_default_timezone_set('Asia/Taipei');
 require_once 'phpQuery/phpQuery/phpQuery.php';
 require_once 'PHPExcel/Classes/PHPExcel.php';
 require_once 'functions.php';
+
+require 'vendor/autoload.php';
+use JonnyW\PhantomJs\Client;
+$client = Client::getInstance();
+
 $debug = true;
 
 $excelArray = parseXlsxIntoArray('Crawler_Format.xlsx');
@@ -12,7 +17,7 @@ $excelArray = parseXlsxIntoArray('Crawler_Format.xlsx');
 $arrayToExcel = array();
 foreach ($excelArray as $row) {
     $url = $row['Primary SKU URL'];
-    $content = file_get_contents($url);
+    $content = getHtmlContent($url);
     $doc = phpQuery::newDocumentHTML($content);
     $rowResponse = array(
         'Website' => $row['Website'],

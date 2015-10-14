@@ -370,3 +370,15 @@ function az_num($str) {
     if(strtoupper($str)=="Y"){return 25;}
     if(strtoupper($str)=="Z"){return 26;}
 }
+
+function getHtmlContent ($url) {
+    global $client;
+    $request = $client->getMessageFactory()->createRequest('', 'GET');
+    $response = $client->getMessageFactory()->createResponse();
+    $client->send($request, $response);
+
+    if($response->getStatus() === 200) {
+        return $response->getContent();
+    }
+
+}
