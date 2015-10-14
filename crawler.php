@@ -5,6 +5,7 @@ date_default_timezone_set('Asia/Taipei');
 require_once 'phpQuery/phpQuery/phpQuery.php';
 require_once 'PHPExcel/Classes/PHPExcel.php';
 require_once 'functions.php';
+$debug = true;
 
 $excelArray = parseXlsxIntoArray('Crawler_Format.xlsx');
 
@@ -28,7 +29,6 @@ foreach ($excelArray as $row) {
                 if (preg_match('/^secondary.*SKU #$/i', $title, $match)) {
                     if ($column && !in_array($column, $alsoBoughtAjaxArray['ajax']['id_list'])) {
                         ($rowResponse['Missing Items'] != '') ? $rowResponse['Missing Items'] .= ',' . $column : $rowResponse['Missing Items'] = $column;
-                        echo $column . ' in the list' . PHP_EOL;
                     }
                 }
             }
@@ -37,13 +37,22 @@ foreach ($excelArray as $row) {
 //            echo $parsedUrl;
             break;
         case 'newegg' :
-
+            $mayWeSuggest = pq('.wrapSideSell div', $doc);
+            foreach ($mayWeSuggest as $suggestDiv) {
+                echo $suggestDiv->html() . PHP_EOL . PHP_EOL;
+            }
+            die();
             break;
     }
     if ($rowResponse['Missing Items'] == '') {
         $rowResponse['Missing Items'] = 'No Missing Item';
     }
     $arrayToExcel[] = $rowResponse;
+}
+
+if ($debug) {
+    echo 'debug mode enabled' . PHP_EOL;
+    return;
 }
 
 $fileName = date("Ymd_Hi") . '.xls';
