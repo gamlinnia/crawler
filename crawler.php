@@ -44,8 +44,15 @@ foreach ($excelArray as $row) {
 //            echo $parsedUrl;
             break;
         case 'newegg' :
-            $mayWeSuggest = pq('.wrapSideSell', $doc);
-            echo $doc->html() . PHP_EOL . PHP_EOL;
+            $mayWeSuggest = pq('.combineBox', $doc)->find('div')->find('.itmSideSell')->find('.wrapper_prodInfo');
+            $productName = pq('.descSideSell', $mayWeSuggest);
+            echo 'count' . count($productName) . PHP_EOL;
+            foreach ($productName as $each) {
+                echo pq('a', $each)->attr('href') . PHP_EOL;
+            }
+            file_put_contents('neproduct.html', $productName->html());
+//            echo $mayWeSuggest->html() . PHP_EOL . PHP_EOL;
+            break;
             break;
     }
     if ($rowResponse['Missing Items'] == '') {

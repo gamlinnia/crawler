@@ -373,12 +373,14 @@ function az_num($str) {
 
 function getHtmlContent ($url) {
     global $client;
-    $request = $client->getMessageFactory()->createRequest('', 'GET');
+    $request = $client->getMessageFactory()->createRequest($url, 'GET');
     $response = $client->getMessageFactory()->createResponse();
     $client->send($request, $response);
 
-    if($response->getStatus() === 200) {
+    if ($response->getStatus() === 200) {
         return $response->getContent();
+    } else {
+        return getHtmlContent($url);
     }
 
 }
