@@ -126,7 +126,7 @@ function neweggPortion ($url, $rowData, $rowResponse) {
         }
         return $rowResponse;
     } else {
-        sleep(10);
+        sleep(rand(3,20));
         return neweggPortion ($url, $rowData, $rowResponse);
     }
 }

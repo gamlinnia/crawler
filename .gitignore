@@ -4,3 +4,5 @@ bin/
 vendor/
 composer.json
 composer.lock
+crawler.iml
+test.php
