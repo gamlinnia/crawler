@@ -381,6 +381,7 @@ function getHtmlContent ($url) {
         return $response->getContent();
     } else {
         echo 'get status: ' . $response->getStatus() . PHP_EOL;
+        sleep(20);
         return getHtmlContent($url);
     }
 
