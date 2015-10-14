@@ -53,7 +53,6 @@ foreach ($excelArray as $row) {
             file_put_contents('neproduct.html', $productName->html());
 //            echo $mayWeSuggest->html() . PHP_EOL . PHP_EOL;
             break;
-            break;
     }
     if ($rowResponse['Missing Items'] == '') {
         $rowResponse['Missing Items'] = 'No Missing Item';
