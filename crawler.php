@@ -37,7 +37,7 @@ foreach ($excelArray as $row) {
 //            echo $parsedUrl;
             break;
         case 'newegg' :
-            $mayWeSuggest = pq('.wrapSideSell div', $doc);
+            $mayWeSuggest = pq('.wrapSideSell', $doc)->find('div');
             echo $mayWeSuggest->html() . PHP_EOL . PHP_EOL;
             foreach ($mayWeSuggest as $suggestDiv) {
                 echo $suggestDiv->html() . PHP_EOL . PHP_EOL;
