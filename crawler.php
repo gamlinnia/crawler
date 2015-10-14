@@ -10,7 +10,7 @@ require 'vendor/autoload.php';
 use JonnyW\PhantomJs\Client;
 $client = Client::getInstance();
 
-$debug = true;
+$debug = false;
 
 $excelArray = parseXlsxIntoArray('Crawler_Format.xlsx');
 
@@ -44,24 +44,7 @@ foreach ($excelArray as $row) {
 //            echo $parsedUrl;
             break;
         case 'newegg' :
-            $content = getHtmlContent($url);
-            $doc = phpQuery::newDocumentHTML($content);
-            $mayWeSuggest = pq('.combineBox', $doc)->find('div')->find('.itmSideSell')->find('.wrapper_prodInfo');
-            $productName = pq('.descSideSell', $mayWeSuggest);
-            echo 'count' . count($productName) . PHP_EOL;
-            $skuArray = array();
-            foreach ($productName as $each) {
-                $productUrl = pq('a', $each)->attr('href');
-                preg_match('/[0-9]{8}$/i', $productUrl, $match);
-                $skuArray[] = parseAllNumberToSku($match[0]);
-            }
-            foreach ($row as $title => $column) {
-                if (preg_match('/^secondary.*SKU #$/i', $title, $match)) {
-                    if ($column && !in_array($column, $skuArray)) {
-                        ($rowResponse['Missing Items'] != '') ? $rowResponse['Missing Items'] .= ',' . $column : $rowResponse['Missing Items'] = $column;
-                    }
-                }
-            }
+            $rowResponse = neweggPortion ($url, $row, $rowResponse);
             break;
     }
     if ($rowResponse['Missing Items'] == '') {
@@ -118,4 +101,32 @@ function addAsinsParam ($parsedUrl, $id_list, $count, $offset) {
         }
     }
     return $parsedUrl . $asins;
+}
+
+function neweggPortion ($url, $rowData, $rowResponse) {
+    $content = getHtmlContent($url);
+    $doc = phpQuery::newDocumentHTML($content);
+    $mayWeSuggest = pq('.combineBox', $doc)->find('div')->find('.itmSideSell')->find('.wrapper_prodInfo');
+    $productName = pq('.descSideSell', $mayWeSuggest);
+    $count = count($productName);
+    echo 'count' . count($productName) . PHP_EOL;
+    if ($count > 0) {
+        $skuArray = array();
+        foreach ($productName as $each) {
+            $productUrl = pq('a', $each)->attr('href');
+            preg_match('/[0-9]{8}$/i', $productUrl, $match);
+            $skuArray[] = parseAllNumberToSku($match[0]);
+        }
+        foreach ($rowData as $title => $column) {
+            if (preg_match('/^secondary.*SKU #$/i', $title, $match)) {
+                if ($column && !in_array($column, $skuArray)) {
+                    ($rowResponse['Missing Items'] != '') ? $rowResponse['Missing Items'] .= ',' . $column : $rowResponse['Missing Items'] = $column;
+                }
+            }
+        }
+        return $rowResponse;
+    } else {
+        sleep(10);
+        return neweggPortion ($url, $rowData, $rowResponse);
+    }
 }
