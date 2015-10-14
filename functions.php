@@ -380,6 +380,7 @@ function getHtmlContent ($url) {
     if ($response->getStatus() === 200) {
         return $response->getContent();
     } else {
+        echo 'not get 200' . PHP_EOL;
         return getHtmlContent($url);
     }
 
