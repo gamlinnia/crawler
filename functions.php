@@ -377,10 +377,10 @@ function getHtmlContent ($url) {
     $response = $client->getMessageFactory()->createResponse();
     $client->send($request, $response);
 
-    if ($response->getStatus() === 200) {
+    if ($response->getStatus() === 200 || $response->getStatus() === 301) {
         return $response->getContent();
     } else {
-        echo 'not get 200' . PHP_EOL;
+        echo 'get status: ' . $response->getStatus() . PHP_EOL;
         return getHtmlContent($url);
     }
 
