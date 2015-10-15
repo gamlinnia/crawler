@@ -391,3 +391,118 @@ function parseAllNumberToSku ($number) {
     $temp = substr_replace($number, '-', 5, 0);
     return substr_replace($temp, '-', 2, 0);
 }
+
+function sendMailByForm ($formName, $formData) {
+    global $config;
+    $formToEmail = array('contactUs', 'i-reviewed-rosewill');
+
+    if (!in_array($formName, $formToEmail)) {
+        return false;
+    }
+
+    $actionKeyByForm = array('contactUs' => 'Purpose for Contact');
+    $action = isset($actionKeyByForm[$formName]) ? $formData[$actionKeyByForm[$formName]] : $formName;
+
+    if ($config['debugMode']) {
+        $recipient_array = array(
+            'to' => array('Li.L.Liu@newegg.com'),
+            'bcc' => array('Reyna.C.Chu@newegg.com', 'Henry.H.Wu@newegg.com')
+        );
+    } else {
+        switch ($action) {
+            case 'Request to Return Merchandise':
+                $recipient_array = array(
+                    'to' => array('rma@rosewill.com'),
+                    'bcc' => array('Li.L.Liu@newegg.com', 'Henry.H.Wu@newegg.com')
+                );
+                break;
+            case 'Request to Review Product':
+                $recipient_array = array(
+                    'to' => array('review@rosewill.com'),
+                    'bcc' => array('Li.L.Liu@newegg.com', 'Henry.H.Wu@newegg.com')
+                );
+                break;
+            case 'Sponsorship Request':
+                $recipient_array = array(
+                    'to' => array('mkt@rosewill.com'),
+                    'bcc' => array('Li.L.Liu@newegg.com', 'Henry.H.Wu@newegg.com')
+                );
+                break;
+            case 'Vendor or Business Contact':
+                $recipient_array = array(
+                    'to' => array('sales@rosewill.com'),
+                    'bcc' => array('Li.L.Liu@newegg.com', 'Henry.H.Wu@newegg.com')
+                );
+                break;
+            case 'Media Contact' :
+                $recipient_array = array(
+                    'to' => array('mkt@rosewill.com'),
+                    'bcc' => array('Li.L.Liu@newegg.com', 'Henry.H.Wu@newegg.com', 'Tim.H.Huang@newegg.com')
+                );
+                break;
+            case 'Other':
+                $recipient_array = array(
+                    'to' => array('mkt@rosewill.com'),
+                    'bcc' => array('Li.L.Liu@newegg.com', 'Henry.H.Wu@newegg.com')
+                );
+                break;
+            case 'i-reviewed-rosewill' :
+                $recipient_array = array(
+                    'to' => array('mkt@rosewill.com', 'sales@rosewill.com', 'consumerreviews@rosewill.com'),
+                    'bcc' => array('Reyna.C.Chu@newegg.com', 'Henry.H.Wu@newegg.com', 'Li.L.Liu@newegg.com')
+                );
+                break;
+            default:
+                return false;
+        }
+    }
+
+    require_once 'class/Email.class.php';
+    require_once 'class/EmailFactory.class.php' ;
+
+    /* SMTP server name, port, user/passwd */
+    $smtpInfo = array("host" => "127.0.0.1",
+        "port" => "25",
+        "auth" => false);
+    $emailFactory = EmailFactory::getEmailFactory($smtpInfo);
+
+    /* $email = class Email */
+    $email = $emailFactory->getEmail($action, $recipient_array);
+    $content = templateReplace($action, $formData);
+    $email->setContent($content);
+    error_log('rw mail to ' . join(', ', $recipient_array['to']));
+    $email->sendMail();
+
+    if (isset($formData['sendACopyToMe']) && $formData['sendACopyToMe'] == 'yes') {
+        if (!isset($formData['email'])) {
+            return false;
+        }
+        $copyEmail = $emailFactory->getEmail($action,  array(
+            'to' => array($formData['email'])
+        ));
+        $copyEmail->setContent($content);
+        $copyEmail->sendMail();
+    }
+    return true;
+}
+
+function templateReplace ($action, $formData) {
+    require_once 'PHPExcel/Classes/PHPExcel.php';
+    $content = file_get_contents('email/content/template.html');
+    $doc = phpQuery::newDocumentHTML($content);
+
+    $contentTitle = array(
+        'i-reviewed-rosewill' => 'I reviewed a Rosewill product!'
+    );
+    (isset($contentTitle[$action])) ? $doc['.descriptionTitle'] = $contentTitle[$action] : $doc['.descriptionTitle'] = $action;
+
+    $emailContent = array();
+    foreach ($formData AS $key => $value) {
+        if ($key != 'sendACopyToMe' && trim($value) != '') {
+            array_push($emailContent, '<p>' . $key . ': ' . $value . '</p>');
+        }
+    }
+    $doc['.description'] = join('', $emailContent);
+    $doc['.logoImage']->attr('src', 'images/rosewilllogo.png');
+    return $doc;
+}
