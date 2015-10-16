@@ -462,6 +462,6 @@ function parseMayWeSuggest ($neweggItemNumber) {
     $decoded = str_replace('\/', '/', $decoded);
     $decoded = str_replace('||+||+||+||', '', $decoded);
     $doc = phpQuery::newDocumentHTML($decoded);
-    $combineBox0 = pq('#CombineBoxItem0', $doc)->html();
-    return $combineBox0;
+    $combineBox0 = pq('#CombineBoxItem0', $doc);
+    var_dump($combineBox0);
 }
