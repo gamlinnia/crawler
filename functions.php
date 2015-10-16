@@ -476,3 +476,9 @@ function parseMayWeSuggest ($neweggItemNumber, $rowData, $rowResponse) {
     return $decoded;
 
 }
+
+function parseSkuToNeweggItemNumber ($sku) {
+    $tmp = substr_replace($sku, '', 2, 1);
+    echo $tmp;
+//    return 'N82E168' . '';
+}
