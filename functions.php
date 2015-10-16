@@ -463,4 +463,13 @@ function parseMayWeSuggest ($neweggItemNumber) {
     $decoded = str_replace('||+||+||+||', '', $decoded);
     $decoded = str_replace('\"', '"', $decoded);
     return $decoded;
+
+//    $content = parseMayWeSuggest('N82E16812119269');
+//
+//    for ($id = 0; $id < 4; $id++) {
+//        $preg = '/<input.+CombineBoxItem' . $id . '.+value="([a-z0-9]+)".+>/i';
+//        preg_match($preg, $content, $match);
+//        var_dump($match);
+//
+//    }
 }
