@@ -454,7 +454,7 @@ function unicode_decode($str) {
     return preg_replace_callback('/\\\\u([0-9a-f]{4})/i', 'replace_unicode_escape_sequence', $str);
 }
 
-function parseMayWeSuggest ($neweggItemNumber) {
+function parseMayWeSuggest ($neweggItemNumber, $rowData, $rowResponse) {
     /* N82E16812119269 */
     $url = 'http://content.newegg.com/Common/Ajax/RelationItemInfo2013.aspx?type=Seller&item=' . $neweggItemNumber . '&v2=2012&action=Biz.Product.ItemRelationInfoManager.JsonpCallBack';
     $originalContent = file_get_contents($url);
@@ -462,14 +462,17 @@ function parseMayWeSuggest ($neweggItemNumber) {
     $decoded = str_replace('\/', '/', $decoded);
     $decoded = str_replace('||+||+||+||', '', $decoded);
     $decoded = str_replace('\"', '"', $decoded);
+
+    $suggestList = array();
+    for ($id = 0; $id < 4; $id++) {
+        $preg = '/<input.+CombineBoxItem' . $id . '.+value="([a-z0-9]+)".+>/i';
+        preg_match($preg, $decoded, $match);
+        $suggestList[] = $match[1];
+        var_dump($match);
+
+    }
+
+
     return $decoded;
 
-//    $content = parseMayWeSuggest('N82E16812119269');
-//
-//    for ($id = 0; $id < 4; $id++) {
-//        $preg = '/<input.+CombineBoxItem' . $id . '.+value="([a-z0-9]+)".+>/i';
-//        preg_match($preg, $content, $match);
-//        var_dump($match);
-//
-//    }
 }
