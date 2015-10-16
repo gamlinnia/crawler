@@ -467,7 +467,7 @@ function parseMayWeSuggest ($neweggItemNumber, $rowData, $rowResponse) {
     for ($id = 0; $id < 4; $id++) {
         $preg = '/<input.+CombineBoxItem' . $id . '.+value="[a-z][0-9]{2}[a-z][0-9]{3}([a-z0-9]+)".+>/i';
         preg_match($preg, $decoded, $match);
-        $suggestList[] = $match[1];
+        $suggestList[] = parseAllNumberToSku($match[1]);
 
     }
     var_dump($suggestList);
