@@ -1,5 +1,10 @@
 <?php
 
+function currentTime () {
+    $now = new DateTime(null, new DateTimeZone('UTC'));
+    return $now->format('Y-m-d H:i:s');    /*MySQL datetime format*/
+}
+
 function attributeSetNameAndId ($nameOrId, $value) {
     /*$nameOrId = 'attributeSetName' or 'attributeSetId'*/
     $attributeSetCollection = Mage::getResourceModel('eav/entity_attribute_set_collection') ->load();
