@@ -127,14 +127,3 @@ function neweggPortion ($url, $rowData, $rowResponse) {
     }
 }
 
-function parseMayWeSuggest ($neweggItemNumber) {
-    /* N82E16812119269 */
-    $url = 'http://content.newegg.com/Common/Ajax/RelationItemInfo2013.aspx?type=Seller&item=' . $neweggItemNumber . '&v2=2012&action=Biz.Product.ItemRelationInfoManager.JsonpCallBack';
-    $originalContent = file_get_contents($url);
-    $decoded = unicode_decode($originalContent);
-    $decoded = str_replace('\/', '/', $decoded);
-    $decoded = str_replace('||+||+||+||', '', $decoded);
-    $doc = phpQuery::newDocumentHTML($decoded);
-    $combineBox0 = pq('#CombineBoxItem0', $doc)->html();
-    return $combineBox0;
-}
