@@ -44,7 +44,8 @@ foreach ($excelArray as $row) {
 //            echo $parsedUrl;
             break;
         case 'newegg' :
-            $rowResponse = neweggPortion ($url, $row, $rowResponse);
+            $rowResponse = parseMayWeSuggest($row['Primary SKU #'], $row, $rowResponse);
+//            $rowResponse = neweggPortion ($url, $row, $rowResponse);
             break;
     }
     if ($rowResponse['Missing Items'] == '') {
