@@ -461,5 +461,6 @@ function parseMayWeSuggest ($neweggItemNumber) {
     $decoded = unicode_decode($originalContent);
     $decoded = str_replace('\/', '/', $decoded);
     $decoded = str_replace('||+||+||+||', '', $decoded);
+    $decoded = str_replace('\"', '"', $decoded);
     return $decoded;
 }
