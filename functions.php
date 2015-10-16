@@ -468,7 +468,7 @@ function parseMayWeSuggest ($neweggItemNumber, $rowData, $rowResponse) {
         $preg = '/<input.+CombineBoxItem' . $id . '.+value="([a-z0-9]+)".+>/i';
         preg_match($preg, $decoded, $match);
         $suggestList[] = $match[1];
-        var_dump($match);
+        var_dump($suggestList);
 
     }
 
