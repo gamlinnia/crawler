@@ -53,12 +53,8 @@ foreach ($excelArray as $row) {
     $arrayToExcel[] = $rowResponse;
 }
 
-if ($debug) {
-    echo 'debug mode enabled' . PHP_EOL;
-    return;
-}
-
 $fileName = date("Ymd_Hi") . '.xls';
+sendMailWithDownloadUrl('Crawler Report', $fileName);
 
 $fileDir = 'report/';
 if (!file_exists($fileDir)) {

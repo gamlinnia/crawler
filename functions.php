@@ -392,10 +392,8 @@ function parseAllNumberToSku ($number) {
     return substr_replace($temp, '-', 2, 0);
 }
 
-function sendMailWithDownloadUrl ($url)
-{
+function sendMailWithDownloadUrl ($action, $url) {
     global $debug;
-    $action = 'Crawler Report';
 
     if ($debug) {
         $recipient_array = array(
@@ -407,38 +405,38 @@ function sendMailWithDownloadUrl ($url)
             'to' => array('uspm@rosewill.com'),
             'bcc' => array('Li.L.Liu@newegg.com', 'Tim.H.Huang@newegg.com')
         );
-
-        require_once 'class/Email.class.php';
-        require_once 'class/EmailFactory.class.php';
-
-        /* SMTP server name, port, user/passwd */
-        $smtpInfo = array("host" => "127.0.0.1",
-            "port" => "25",
-            "auth" => false);
-        $emailFactory = EmailFactory::getEmailFactory($smtpInfo);
-
-        /* $email = class Email */
-        $email = $emailFactory->getEmail($action, $recipient_array);
-        $content = templateReplace($action, $url);
-        $email->setContent($content);
-        $email->sendMail();
-
-        return true;
     }
+
+    require_once 'class/Email.class.php';
+    require_once 'class/EmailFactory.class.php';
+
+    /* SMTP server name, port, user/passwd */
+    $smtpInfo = array("host" => "127.0.0.1",
+        "port" => "25",
+        "auth" => false);
+    $emailFactory = EmailFactory::getEmailFactory($smtpInfo);
+
+    /* $email = class Email */
+    $email = $emailFactory->getEmail($action, $recipient_array);
+    $content = templateReplace($action, $url);
+    $email->setContent($content);
+    $email->sendMail();
+
+    return true;
 }
 
-    function templateReplace ($action, $url) {
-        require_once 'PHPExcel/Classes/PHPExcel.php';
-        $content = file_get_contents('email/content/template.html');
-        $doc = phpQuery::newDocumentHTML($content);
+function templateReplace ($action, $url) {
+    require_once 'PHPExcel/Classes/PHPExcel.php';
+    $content = file_get_contents('email/content/template.html');
+    $doc = phpQuery::newDocumentHTML($content);
 
-        $contentTitle = array(
-            'Crawler Report' => 'Crawler Report'
-        );
-        (isset($contentTitle[$action])) ? $doc['.descriptionTitle'] = $contentTitle[$action] : $doc['.descriptionTitle'] = $action;
+    $contentTitle = array(
+        'Crawler Report' => 'Crawler Report'
+    );
+    (isset($contentTitle[$action])) ? $doc['.descriptionTitle'] = $contentTitle[$action] : $doc['.descriptionTitle'] = $action;
 
-        $emailContent = array();
-        $doc['.description'] = 'URL: ' . $url;
-        $doc['.logoImage']->attr('src', 'images/rosewilllogo.png');
-        return $doc;
-    }
+    $emailContent = array();
+    $doc['.description'] = 'URL: ' . $url;
+    $doc['.logoImage']->attr('src', 'images/rosewilllogo.png');
+    return $doc;
+}
