@@ -106,7 +106,8 @@ class Email{
             'Sponsorship Request' => 'Sponsorship Request',
             'Vendor or Business Contact' => 'Vendor or Business Contact',
             'Other' => 'Uncategorized Contact',
-            'i-reviewed-rosewill' => 'I Reviewed a Rosewill Product!'
+            'i-reviewed-rosewill' => 'I Reviewed a Rosewill Product!',
+            'Crawler Report' => 'NE.com and Amazon.com Daily Crawling Report'
         );
 //        return $this->getAction();
         if (!isset($subjectArray[$this->getAction()])) {
