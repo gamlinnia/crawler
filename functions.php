@@ -436,7 +436,7 @@ function templateReplace ($action, $url) {
     $doc = phpQuery::newDocumentHTML($content);
 
     $contentTitle = array(
-        'Crawler Report' => 'Crawler Report'
+        'Crawler Report' => 'NE.com and Amazon.com Daily Crawling Report'
     );
     (isset($contentTitle[$action])) ? $doc['.descriptionTitle'] = $contentTitle[$action] : $doc['.descriptionTitle'] = $action;
 
