@@ -12,6 +12,9 @@ $client = Client::getInstance();
 
 $debug = false;
 
+/*
+ * fetch excel from the directory of report , need to be set in shared file system if load balanced.
+ * */
 $excelArray = parseXlsxIntoArray('report/Crawler_Format.xlsx');
 
 $arrayToExcel = array();
