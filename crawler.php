@@ -12,7 +12,7 @@ $client = Client::getInstance();
 
 $debug = false;
 
-$excelArray = parseXlsxIntoArray('Crawler_Format.xlsx');
+$excelArray = parseXlsxIntoArray('report/Crawler_Format.xlsx');
 
 $arrayToExcel = array();
 foreach ($excelArray as $row) {
