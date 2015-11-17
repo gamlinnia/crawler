@@ -441,7 +441,7 @@ function templateReplace ($action, $url) {
     (isset($contentTitle[$action])) ? $doc['.descriptionTitle'] = $contentTitle[$action] : $doc['.descriptionTitle'] = $action;
 
     $emailContent = array();
-    $doc['.description'] = 'URL: ' . '<a href="http://test.rosewill.com/media/report/' . $url . '">' . $url . "</a>";
+    $doc['.description'] = 'URL: ' . '<a href="http://www.rosewill.com/media/report/' . $url . '">' . $url . "</a>";
     $doc['.logoImage']->attr('src', 'images/rosewilllogo.png');
     return $doc;
 }
